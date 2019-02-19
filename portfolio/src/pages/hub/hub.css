@@ -1,0 +1,51 @@
+/* tropic vibe */
+
+/*
+
+white:          #fafafa
+blue:           #0084ff
+red-pink:       #f11e41
+light-black:    #222222
+
+*/
+
+
+
+/* dark-purp, bright highs */
+
+/*
+
+dark-purple:    #0f0729
+white:          #fafafa
+purple:         #421dc7
+aqua:           #49cbf3
+
+*/
+
+body {
+    background-color: #0f0729;
+}
+
+/* path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: dash 5s linear forwards;
+} */
+
+@keyframes dash {
+    to {
+      stroke-dashoffset: 0;
+    }
+}
+
+div.main {
+    background-color: #fafafa
+}
+
+div.complement {
+    background-color: #421dc7
+}
+
+div.highlight {
+    background-color: #49cbf3
+}

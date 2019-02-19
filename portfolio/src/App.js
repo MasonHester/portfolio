@@ -1,5 +1,5 @@
-import React from 'react';
-import Hub from './components/hub/hub'
+import React from "react";
+import Hub from "./pages/hub";
 
 class App extends React.Component {
   render() {
@@ -8,7 +8,7 @@ class App extends React.Component {
         <Hub />
       </>
     );
-  }
-}
+  };
+};
 
 export default App;
