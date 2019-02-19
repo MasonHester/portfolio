@@ -196,7 +196,6 @@ class Hub extends React.Component {
 	}
 
 	componentDidMount = () => {
-		console.log(this.refs)
 		this.draw_mountains();
 		window.addEventListener("resize", this.draw_mountains);
 	}
@@ -206,7 +205,7 @@ class Hub extends React.Component {
 			<div className="wrapper" style={{ backgroundColor: this.state.mountainInfo.sky }}>
 				<svg width={this.state.windowDimensions.width} height={this.state.windowDimensions.height} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 					{this.state.paths.map((path, i) => {
-						return <path key={i} ref={(ref) => {this.path = ref}} stroke="#111111" strokeWidth="2" fill={this.state.mountainInfo.sky} d={path}></path>
+						return <path key={i} stroke="#111111" strokeWidth="2" fill={this.state.mountainInfo.sky} d={path}></path>
 					})}
 				</svg>
 				<div className="main">Test 1</div>
