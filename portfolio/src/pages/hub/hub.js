@@ -1,5 +1,6 @@
 import React from "react";
-import "./hub.css"
+import "./hub.css";
+import SvgPath from "../../components/SvgPath"
 
 class Hub extends React.Component {
 	state = {
@@ -20,7 +21,7 @@ class Hub extends React.Component {
 	};
 
 	positive_or_negative = () => {
-		return Math.random < 0.5 ? -1 : 1
+		return Math.random() < 0.5 ? -1 : 1
 	}
 
 	// Returns array in RGB format -- [R, G, B]
@@ -55,7 +56,7 @@ class Hub extends React.Component {
 
 	// Finds equally distanced numbers inbetween a floor and ceiling
 	// Expected Input: (0, 0, 0, "rgb" || if non-specific "null")
-	step_values = (first, last, total, type) => {
+	step_values = (first, second, total, type) => {
 		const steppedValues = [];
 
 		switch (type) {
@@ -66,13 +67,14 @@ class Hub extends React.Component {
 				};
 
 				const differences = first.map((color, i) => {
-					const tempDifference = 0 - Math.abs(color - last[i]);
+					const tempDifference = 0 - Math.abs(color - second[i]);
 					return tempDifference
 				});
 
 				for (let step = 0; step <= total; step++) {
 					differences.map((diff, i) => {
-						const color = first[i] + ((diff / total) * step);
+						const base = first[i] > second[i] ? first[i] : 0 - first[i];
+						const color = Math.abs(base + ((diff / total) * step));
 						steppedValues[step].push(color);
 						return null;
 					});
@@ -80,7 +82,7 @@ class Hub extends React.Component {
 
 				break;
 			default:
-				const diff = 0 - Math.abs(first - last);
+				const diff = 0 - Math.abs(first - second);
 
 				for (let step = 0; step <= total; step++) {
 					const value = first + ((diff / total) * step);
@@ -95,11 +97,11 @@ class Hub extends React.Component {
 
 	// Generates the colors for each mountain layer
 	// Expected Input: ("#xxxxxx", "#xxxxxx", 0)
-	gen_layer_hex_values = (sky, foreground, totalLayers) => {
-		const skyRGB = this.convert_to_rgb(sky);
-		const foregroundRGB = this.convert_to_rgb(foreground);
+	gen_layer_hex_values = (first, second, totalLayers) => {
+		const firstRGB = this.convert_to_rgb(first);
+		const secondRGB = this.convert_to_rgb(second);
 
-		const steppedValuesRGB = this.step_values(skyRGB, foregroundRGB, totalLayers, "rgb");
+		const steppedValuesRGB = this.step_values(firstRGB, secondRGB, totalLayers, "rgb");
 
 		const steppedValuesHex = this.convert_to_hex(steppedValuesRGB);
 
@@ -133,22 +135,28 @@ class Hub extends React.Component {
 		return reducedFullDefinitionSet;
 	}
 
-	add_noise_to_xy_array_set = rawDefinitions => {
+	add_noise_to_xy_array_set = (rawDefinitions, density) => {
 		const subHouse = []
+		let previousNum = 0
 
 		rawDefinitions.map(array => {
-			subHouse.push([array[0], array[1] + (this.positive_or_negative() * this.gen_random_number(0, 80))])
+			const qq = this.positive_or_negative() * this.gen_random_number(0, density * (3 / 2))
+			// console.log(qq)
+			const currentYNoise = previousNum + (qq)
+			// console.log(currentYNoise, previousNum)
+			subHouse.push([array[0], currentYNoise + array[1]]);
+			previousNum = currentYNoise;
 		})
 
 		return subHouse;
-
 	}
 
-	break_down_multi_xy_arrays = arraySets => {
+	break_down_multi_xy_arrays = (arraySets, peakDensities) => {
 		const house = [];
 
-		arraySets.map(arraySet => {
-			house.push(this.add_noise_to_xy_array_set(arraySet));
+		arraySets.map((arraySet, i) => {
+			// console.log(peakDensities, i)
+			house.push(this.add_noise_to_xy_array_set(arraySet, peakDensities[i]));
 		})
 
 		return house;
@@ -165,8 +173,6 @@ class Hub extends React.Component {
 			})
 
 			pathDefinitions.push(path);
-
-			console.log(`-------------\n-------------\n-------------`)
 		});
 
 		return pathDefinitions;
@@ -183,7 +189,7 @@ class Hub extends React.Component {
 		const layerHexValues = this.gen_layer_hex_values(this.state.mountainInfo.sky, this.state.mountainInfo.foreground, mountainLayers);
 		const peakDensities = this.gen_peak_densities(mountainLayers - 1);
 		const rawPeakDefinitions = this.gen_peak_definitions(windowDimensions, peakDensities);
-		const reducedPeakDefinitions = this.break_down_multi_xy_arrays(rawPeakDefinitions);
+		const reducedPeakDefinitions = this.break_down_multi_xy_arrays(rawPeakDefinitions, peakDensities);
 
 		const atemp = this.temp(reducedPeakDefinitions);
 		console.log("--------------------")
@@ -205,12 +211,9 @@ class Hub extends React.Component {
 			<div className="wrapper" style={{ backgroundColor: this.state.mountainInfo.sky }}>
 				<svg width={this.state.windowDimensions.width} height={this.state.windowDimensions.height} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 					{this.state.paths.map((path, i) => {
-						return <path key={i} stroke="#111111" strokeWidth="2" fill={this.state.mountainInfo.sky} d={path}></path>
+						return <SvgPath key={i} i={i} path={path} sky={this.state.mountainInfo.sky} />
 					})}
 				</svg>
-				<div className="main">Test 1</div>
-				<div className="complement">Test 2</div>
-				<div className="highlight">Test 3</div>
 				<div className="main">W: {this.state.windowDimensions.width} H: {this.state.windowDimensions.height}</div>
 			</div>
 		)
